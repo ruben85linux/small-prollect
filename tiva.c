@@ -40,28 +40,23 @@ int main(void)
 
             switch (nuevoCaracter) {
                 case 'A':
-                    UARTprintf("Recibido en Tiva: %c, Alternando LEDs\n", nuevoCaracter);
                     alternando = true; 
                     AlternarLeds();    
                     break;
                 case 'B':
-                    UARTprintf("Recibido en Tiva: %c, Encendiendo el LED en PF4\n", nuevoCaracter);
                     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_4, GPIO_PIN_4);  
                     alternando = false; 
                     break;
                 case 'C':
-                    UARTprintf("Recibido en Tiva: %c, Encendiendo todos los LEDs\n", nuevoCaracter);
                     GPIOPinWrite(GPIO_PORTN_BASE, GPIO_PIN_0 | GPIO_PIN_1, GPIO_PIN_0 | GPIO_PIN_1);  
                     GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_4, GPIO_PIN_0 | GPIO_PIN_4);  
                     alternando = false; 
                     break;
                 case 'D':
-                    UARTprintf("Recibido en Tiva: %c, Apagando todos los LEDs\n", nuevoCaracter);
                     ApagarLeds();  
                     alternando = false; 
                     break;
                 default:
-                    UARTprintf("Recibido en Tiva: %c, No se asigna a un LED\n", nuevoCaracter);
                     break;
             }
         }
