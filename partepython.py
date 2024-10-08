@@ -4,33 +4,28 @@ import serial
 import smtplib
 from datetime import datetime
 
-# Pines GPIO para los motores
 MOTOR_A = 17   
 MOTOR_B = 27   
 MOTOR_C = 22   
 MOTOR_D = 23   
 
-# Pines GPIO para los botones
 BOTON_ADELANTE = 5
 BOTON_ATRAS = 6
 BOTON_IZQUIERDA = 13
 BOTON_DERECHA = 19
 
-# Pines GPIO para el sensor HC-SR04
-TRIG = 2  # Pin GPIO para la señal Trig del sensor
-ECHO = 4  # Pin GPIO para la señal Echo del sensor
+TRIG = 2  
+ECHO = 4  
 
-# Pin GPIO para el zumbador (buzzer)
 BUZZER_PIN = 3  
 
-EMAIL_ADDRESS = "ucb.login@gmail.com"  # Cambia a tu correo electrónico
-EMAIL_PASSWORD = "liqbhsrdumofugimliqbhhsrdumofugim"  # Cambia a tu contraseña de aplicación
+EMAIL_ADDRESS = "ucb.login@gmail.com"  
+EMAIL_PASSWORD = "liqbhsrdumofugimliqbhhsrdumofugim"  #
 TO_EMAIL = "ruben.limachi@ucb.edu.bo" 
-# Archivo de control
+
 ARCHIVO_CONTROL = "/home/ruben/Downloads/control.txt"
 
-# Configurar el puerto serie para la comunicación con la Tiva
-ser = serial.Serial('/dev/ttyACM0', 9600)  # Cambia al puerto correcto si es necesario
+ser = serial.Serial('/dev/ttyACM0', 9600)  
 
 def configurar_gpio():
     GPIO.setmode(GPIO.BCM)
@@ -45,11 +40,9 @@ def configurar_gpio():
     GPIO.setup(BOTON_IZQUIERDA, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     GPIO.setup(BOTON_DERECHA, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
-    # Configuración del sensor
     GPIO.setup(TRIG, GPIO.OUT)
     GPIO.setup(ECHO, GPIO.IN)
 
-    # Configuración del buzzer
     GPIO.setup(BUZZER_PIN, GPIO.OUT)
 
 def leer_comando_del_archivo():
@@ -100,22 +93,20 @@ def ejecutar_comando(comando):
         GPIO.output(MOTOR_C, GPIO.HIGH)  
 
 def medir_distancia():
-    # Enviar un pulso de 10us al pin TRIG
+ 
     GPIO.output(TRIG, True)
     time.sleep(0.00001)
     GPIO.output(TRIG, False)
 
-    # Esperar la respuesta del pin ECHO
     while GPIO.input(ECHO) == 0:
         inicio = time.time()
 
     while GPIO.input(ECHO) == 1:
         fin = time.time()
 
-    # Calcular la distancia
     duracion = fin - inicio
-    distancia = duracion * 17150  # Multiplicador para convertir a cm
-    distancia = round(distancia, 2)  # Redondear a dos decimales
+    distancia = duracion * 17150 
+    distancia = round(distancia, 2)  
 
     return distancia
 
@@ -136,10 +127,9 @@ def bucle_principal():
 
         # Medir la distancia
         distancia = medir_distancia()
-        print(f"Distancia: {distancia} cm")  # Para depuración
-        ser.write(f"{distancia}\n".encode())  # Enviar la distancia a la Tiva
+        print(f"Distancia: {distancia} cm") 
+        ser.write(f"{distancia}\n".encode())  
 
-        # Enviar comandos según la distancia
         if distancia > 20:
             ser.write(b'A')
             time.sleep(0.2)
@@ -151,19 +141,19 @@ def bucle_principal():
             detener_todos()
             escribir_comando_en_archivo("parar")
             time.sleep(0.2)
-            # Apagar motores
-            GPIO.output(BUZZER_PIN, GPIO.LOW)  # Encender zumbador
-            time.sleep(0.1)  # Esperar 2 segundos
+
+            GPIO.output(BUZZER_PIN, GPIO.LOW)  
+            time.sleep(0.1) 
             GPIO.output(BUZZER_PIN, GPIO.HIGH)
             enviar_correo_asunto("Sistema detenido", f"El sistema se ha detenido a las {datetime.now()}.")
-            # Apagar zumbador
+     
         elif distancia < 5:
             ser.write(b'D')
-            detener_todos()  # Apagar motores
+            detener_todos()  
             escribir_comando_en_archivo("parar")
-            GPIO.output(BUZZER_PIN, GPIO.LOW)  # Encender zumbador
-            time.sleep(0.1)  # Esperar 2 segundos
-            GPIO.output(BUZZER_PIN, GPIO.HIGH)  # Apagar zumbador
+            GPIO.output(BUZZER_PIN, GPIO.LOW)  
+            time.sleep(0.1)  
+            GPIO.output(BUZZER_PIN, GPIO.HIGH)  
 
         time.sleep(0.1)  
 
